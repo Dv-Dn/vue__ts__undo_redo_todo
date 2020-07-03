@@ -1,0 +1,12 @@
+.todo-item {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+  box-shadow: 0 0 3px $black;
+  padding: 5px;
+  color: $black;
+  &__input {
+    margin: 0 10px;
+  }
+}

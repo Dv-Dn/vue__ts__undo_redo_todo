@@ -1,0 +1,12 @@
+html {
+  font-family: 'Roboto', sans-serif;
+  color: $black;
+  text-rendering: optimizeLegibility;
+}
+
+.App {
+  max-width: 1200px;
+  box-shadow: 0 0 25px 1px rgba($color: $black, $alpha: 0.3);
+  min-height: 100vh;
+  margin: 0 auto;
+}

@@ -1,0 +1,30 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.text_primary {
+  color: $primary;
+}
+.text_white {
+  color: $white;
+}
+.text_black {
+  color: $black;
+}
+.text-decoration_line-through {
+  text-decoration: line-through;
+  color: rgba($black, 0.4);
+}
+.cursor_edit {
+  cursor: url('https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR3KJryotTNySGdwClwn9p3OI4DUFWpKd-c-pAGBvaW781xHhx6&usqp=CAU'),
+    auto;
+}
+
+.bg-color_transparent {
+  background-color: transparent;
+}

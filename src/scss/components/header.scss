@@ -1,0 +1,15 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 50px;
+  align-items: flex-start;
+  &__title {
+    margin: 0 25px;
+  }
+}
+.h2 {
+  font-size: 23px;
+  @include respond-to(lg) {
+    font-size: 36px;
+  }
+}

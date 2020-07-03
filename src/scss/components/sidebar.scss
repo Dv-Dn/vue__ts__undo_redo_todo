@@ -1,0 +1,12 @@
+.sidebar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  &__block {
+    background-color: rgba($primary, 0.9);
+    max-width: 1200px;
+    text-align: center;
+    margin: 0 auto;
+  }
+}

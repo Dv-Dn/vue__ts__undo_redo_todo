@@ -1,0 +1,21 @@
+.note-list {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr 1fr 1fr;
+  justify-items: center;
+
+  &__add-icon {
+    cursor: pointer;
+    color: rgba($primary, 0.2);
+    &:hover {
+      color: rgba($primary, 0.8);
+      transform: scale(1.1);
+    }
+  }
+}
+.h1 {
+  font-size: 35px;
+  text-align: center;
+  padding: 15px;
+  margin-bottom: 50px;
+}

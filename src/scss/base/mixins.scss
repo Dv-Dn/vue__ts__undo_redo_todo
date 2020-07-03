@@ -1,0 +1,20 @@
+@mixin min-max($min-width, $max-width, $padding) {
+  box-sizing: border-box;
+  min-width: $min-width;
+  max-width: $max-width;
+  padding-right: $padding;
+
+// margin: 0 auto;
+  // padding: 0 $padding;
+  padding-left: $padding;
+}
+@mixin respond-to($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (min-width: #{map-get($breakpoints, $breakpoint)}) {
+      @content;
+    }
+  } @else {
+    @warn 'Unfortunately, no value could be retrieved from `#{$breakpoint}`. '
+    + 'Please make sure it is defined in `$breakpoints` map.';
+  }
+}

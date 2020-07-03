@@ -1,0 +1,62 @@
+.note {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 250px;
+  height: 300px;
+  margin: 15px;
+  padding: 15px;
+  transition: 0.2s ease-out;
+  border-radius: $border-radius;
+  box-shadow: 0 0 6px rgba($color: $primary, $alpha: 0.6);
+  &:hover {
+    transform: scale(1.04);
+    box-shadow: 0 0 12px rgba($color: $primary, $alpha: 1);
+  }
+  &:hover &__menu {
+    visibility: visible;
+    transform: translateX(1px);
+  }
+
+  &__title {
+    font-size: $fs-lg;
+    font-weight: 500;
+    color: $primary;
+  }
+  &__menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    visibility: hidden;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 5px;
+    transition: 0.2s ease-out;
+    transform: translateX(40px);
+    text-align: right;
+    color: #fff;
+    background-color: rgba($color: $primary, $alpha: 0.6);
+  }
+}
+.note-todo {
+  padding: 5px;
+}
+.note-todo__item {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: $fs-md;
+  overflow: hidden;
+  margin-bottom: 8px;
+  padding: 2px;
+  letter-spacing: 1px;
+  text-overflow: ellipsis;
+  border-bottom: 1px $black solid;
+}
+.todo_completed {
+  text-decoration: line-through;
+  color: $grey;
+  border-color: $grey;
+}

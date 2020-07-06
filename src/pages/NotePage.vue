@@ -134,21 +134,9 @@ export default class Todo extends Vue {
   done: TodoItemType[][] = [];
   undone: TodoItemType[][] = [];
   public getNoteItemCopy(): void {
-    this.noteItem = JSON.parse(
-      JSON.stringify(this.getNoteItemByIndex(this.id))
-    );
+    this.noteItem = deepCopy(this.getNoteItemByIndex(this.id));
   }
-
-  @Watch('noteItem.todoList', {
-    deep: true
-  })
-  noteItemChanged(val: TodoItemType[]): void {
-    if (!this.mutation) {
-      this.done = [];
-      this.undone.push(JSON.parse(JSON.stringify(val)));
-    }
-  }
-
+  // TODO ITEM
   public onEditTodoItem(id: string, value: string): void {
     this.editItemId = id;
     this.tmpInput = value;
@@ -162,7 +150,6 @@ export default class Todo extends Vue {
   public onRemoveTodoItem(index: number): void {
     this.noteItem.todoList.splice(index, 1);
   }
-
   public onAcceptTodoItem(index: number): void {
     this.editItemId = '';
     if (
@@ -172,6 +159,9 @@ export default class Todo extends Vue {
       this.noteItem.todoList[index].title = this.tmpInput;
     }
   }
+  // TODO ITEM END
+
+  // Main input send button
   public onSendButton() {
     if (this.tmpInput) {
       if (this.targetNoteName) {
@@ -190,6 +180,16 @@ export default class Todo extends Vue {
   //_ Sidebar действия
 
   // UNDO REDO
+  @Watch('noteItem.todoList', {
+    deep: true
+  })
+  noteItemChanged(val: TodoItemType[]): void {
+    if (!this.mutation) {
+      this.done = [];
+      this.undone.push(JSON.parse(JSON.stringify(val)));
+    }
+  }
+
   public onUndo(): void {
     const lastAction = this.undone[this.undone.length - 1];
     this.mutation = true;
@@ -216,6 +216,7 @@ export default class Todo extends Vue {
       this.mutation = false;
     });
   }
+  // UNDO REDO END
 
   public onNoteNameEdit() {
     this.inputPlaceholder = 'Enter new note name';

@@ -21,7 +21,7 @@
     <ul class="note-page__todo-list" v-if="noteItem.todoList">
       <h4 class="">Todo list</h4>
       <li class="todo-item" :key="a.id" v-for="(a, i) in noteItem.todoList">
-        <Input
+        <Checkbox
           type="checkbox"
           v-model="noteItem.todoList[i].completed"
           :disabled="!editStatus && !edit"
@@ -68,6 +68,7 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import {
   Input,
+  Checkbox,
   Btn,
   Icon,
   Dialog,
@@ -75,13 +76,8 @@ import {
   Sidebar,
   TodoItem
 } from '@/components';
-import {
-  NoteType,
-  TodoItemHistoryType,
-  SetNoteType,
-  DialogType,
-  TodoItemType
-} from '@/types.ts';
+import { NoteType, SetNoteType, DialogType, TodoItemType } from '@/types.ts';
+import { deepCopy, generateNewNote } from '@/helpers';
 import { namespace } from 'vuex-class';
 const notes = namespace('notes');
 
@@ -93,7 +89,8 @@ const notes = namespace('notes');
     TodoItem,
     Dialog,
     Header,
-    Sidebar
+    Sidebar,
+    Checkbox
   }
 })
 export default class Todo extends Vue {
@@ -111,7 +108,7 @@ export default class Todo extends Vue {
     if (!this.getNoteItemByIndex(this.id) && this.edit !== 'new')
       this.$router.push({ path: '/noNote' });
     else if (this.edit == 'new') {
-      this.noteItem = this.generateNewNote();
+      this.noteItem = generateNewNote();
       this.onNoteNameEdit();
     } else this.getNoteItemCopy();
   }
@@ -131,31 +128,27 @@ export default class Todo extends Vue {
   tmpInput = '';
   editItemId = '';
   noteNameEditStatus = false;
+  mutation = false;
   inputPlaceholder = 'Add new task';
   noteItem = {} as NoteType;
-  done: TodoItemHistoryType[] = [];
-  undone: TodoItemHistoryType[] = [];
-
+  done: TodoItemType[][] = [];
+  undone: TodoItemType[][] = [];
   public getNoteItemCopy(): void {
     this.noteItem = JSON.parse(
       JSON.stringify(this.getNoteItemByIndex(this.id))
     );
   }
 
-  // @Watch('noteItem', {
-  //   // immediate: true,
-  //   deep: true
-  // })
-  // noteItemChanged(val: NoteType, oldV: NoteType): void {
-
-  // }
-  public todoHistoryItem(type: string, index: number): TodoItemHistoryType {
-    return {
-      type,
-      index,
-      todo: { ...this.noteItem.todoList[index] }
-    };
+  @Watch('noteItem.todoList', {
+    deep: true
+  })
+  noteItemChanged(val: TodoItemType[]): void {
+    if (!this.mutation) {
+      this.done = [];
+      this.undone.push(JSON.parse(JSON.stringify(val)));
+    }
   }
+
   public onEditTodoItem(id: string, value: string): void {
     this.editItemId = id;
     this.tmpInput = value;
@@ -167,12 +160,6 @@ export default class Todo extends Vue {
   }
 
   public onRemoveTodoItem(index: number): void {
-    this.done = [];
-    this.undone.push({
-      type: 'del',
-      index,
-      todo: this.noteItem.todoList[index]
-    });
     this.noteItem.todoList.splice(index, 1);
   }
 
@@ -182,9 +169,7 @@ export default class Todo extends Vue {
       this.tmpInput &&
       this.tmpInput !== this.noteItem.todoList[index].title
     ) {
-      this.undone.push(this.todoHistoryItem('edit', index));
       this.noteItem.todoList[index].title = this.tmpInput;
-      this.done = [];
     }
   }
   public onSendButton() {
@@ -207,35 +192,31 @@ export default class Todo extends Vue {
   // UNDO REDO
   public onUndo(): void {
     const lastAction = this.undone[this.undone.length - 1];
-    if (lastAction.type === 'del') {
-      this.noteItem.todoList.splice(lastAction.index, 0, lastAction.todo);
-    } else if (lastAction.type === 'edit') {
-      this.noteItem.todoList[lastAction.index] = lastAction.todo;
+    this.mutation = true;
+    const prevState = this.undone[this.undone.length - 2];
+    if (this.undone.length > 1) {
+      this.noteItem.todoList = deepCopy(prevState);
+      this.done.push(lastAction);
+      this.undone.splice(-1, 1);
     }
-    this.done.push(lastAction);
-    this.undone.splice(-1, 1);
+    this.$nextTick((): void => {
+      this.mutation = false;
+    });
   }
 
   public onRedo(): void {
     const lastAction = this.done[this.done.length - 1];
-    if (lastAction.type === 'del') {
-      this.noteItem.todoList.splice(lastAction.index, 1);
-      this.undone.push(lastAction);
+    this.mutation = true;
+    if (this.done.length) {
+      this.noteItem.todoList = lastAction;
+      this.undone.push(deepCopy(lastAction));
       this.done.splice(-1, 1);
     }
-    if (lastAction.type === 'del') {
-      this.noteItem.todoList.splice(lastAction.index, 1);
-      this.undone.push(lastAction);
-      this.done.splice(-1, 1);
-    }
+    this.$nextTick((): void => {
+      this.mutation = false;
+    });
   }
-  public generateNewNote(): NoteType {
-    return {
-      id: Date.now().toString(),
-      name: 'New note',
-      todoList: []
-    };
-  }
+
   public onNoteNameEdit() {
     this.inputPlaceholder = 'Enter new note name';
     this.targetNoteName = true;
@@ -255,6 +236,8 @@ export default class Todo extends Vue {
 
   public onRevertChanges(): void {
     this.dialog.isOpen = true;
+    this.dialog.title = 'Revent changes';
+    this.dialog.text = 'Are you sure you want to discard the changes?';
     this.dialog.onAccept = () => {
       this.getNoteItemCopy();
       this.done = [];

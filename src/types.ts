@@ -33,3 +33,4 @@ export type TodoItemHistoryType = {
   index: number;
   todo: TodoItemType;
 };
+export type HistoryType = TodoItemType[];

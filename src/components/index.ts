@@ -6,4 +6,5 @@ export { default as NoteCard } from './NoteCard.vue';
 export { default as Header } from './Header.vue';
 export { default as Btn } from './UI/Btn.vue';
 export { default as Input } from './UI/Input.vue';
+export { default as Checkbox } from './UI/Checkbox.vue';
 export { default as Icon } from './UI/Icon.vue';

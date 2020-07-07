@@ -10,7 +10,7 @@
 
     <div class="note-page__input-block" v-if="editStatus">
       <Input
-        @change="e => (tmpInput = e.target.value)"
+        v-model="mainInput"
         @keyup.enter="onSendButton"
         :placeholder="inputPlaceholder"
         ref="mainInput"
@@ -27,9 +27,9 @@
           :disabled="!editStatus && !edit"
         />
         <Input
-          @change="e => (tmpInput = e.target.value)"
+          @change="e => (todoItemInput = e.target.value)"
           :value="a.title"
-          :disabled="a.id != editItemId"
+          :disabled="a.id != targetItemId"
           :class="{ 'text-decoration_line-through': a.completed }"
           :ref="'input_' + a.id"
           class="todo-item__input"
@@ -37,7 +37,7 @@
         <div v-if="editStatus">
           <Btn
             icon
-            v-if="a.id != editItemId"
+            v-if="a.id != targetItemId"
             @click="onEditTodoItem(a.id, a.title)"
             ><Icon>create</Icon></Btn
           >
@@ -125,8 +125,9 @@ export default class Todo extends Vue {
     }
   };
   targetNoteName = false;
-  tmpInput = '';
-  editItemId = '';
+  mainInput = '';
+  todoItemInput = '';
+  targetItemId = '';
   noteNameEditStatus = false;
   mutation = false;
   inputPlaceholder = 'Add new task';
@@ -138,8 +139,8 @@ export default class Todo extends Vue {
   }
   // TODO ITEM
   public onEditTodoItem(id: string, value: string): void {
-    this.editItemId = id;
-    this.tmpInput = value;
+    this.targetItemId = id;
+    this.todoItemInput = value;
     // Велосипед, для перевода фокуса на инпут
     const input = this.$refs['input_' + id] as any;
     this.$nextTick((): void => {
@@ -151,30 +152,31 @@ export default class Todo extends Vue {
     this.noteItem.todoList.splice(index, 1);
   }
   public onAcceptTodoItem(index: number): void {
-    this.editItemId = '';
+    this.targetItemId = '';
     if (
-      this.tmpInput &&
-      this.tmpInput !== this.noteItem.todoList[index].title
+      this.todoItemInput &&
+      this.todoItemInput !== this.noteItem.todoList[index].title
     ) {
-      this.noteItem.todoList[index].title = this.tmpInput;
+      this.noteItem.todoList[index].title = this.todoItemInput;
     }
   }
   // TODO ITEM END
 
   // Main input send button
   public onSendButton() {
-    if (this.tmpInput) {
+    if (this.mainInput) {
       if (this.targetNoteName) {
-        this.noteItem.name = this.tmpInput;
+        this.noteItem.name = this.mainInput;
         this.inputPlaceholder = 'Add new task';
         this.targetNoteName = false;
       } else {
         this.noteItem.todoList.push({
           id: Date.now().toString(),
           completed: false,
-          title: this.tmpInput
+          title: this.mainInput
         });
       }
+      this.mainInput = '';
     }
   }
   //_ Sidebar действия
@@ -220,6 +222,7 @@ export default class Todo extends Vue {
 
   public onNoteNameEdit() {
     this.inputPlaceholder = 'Enter new note name';
+    this.mainInput = '';
     this.targetNoteName = true;
     const input = this.$refs.mainInput as any;
     input.$el.focus();
